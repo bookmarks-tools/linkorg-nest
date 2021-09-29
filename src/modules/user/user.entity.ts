@@ -1,9 +1,10 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn, ManyToMany, OneToMany,
 } from 'typeorm';
 import { PasswordTransformer } from './password.transformer';
+import { Tag } from '../tag/tag.entity';
 
 @Entity({
   name: 'users',
@@ -27,6 +28,9 @@ export class User {
     transformer: new PasswordTransformer(),
   })
   password: string;
+
+  @OneToMany(type => Tag, tag => tag.user)
+  tags: Tag[];
 
   toJSON() {
     const { password, ...self } = this;
