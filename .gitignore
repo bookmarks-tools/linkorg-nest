@@ -25,3 +25,4 @@ build/config\.gypi
 
 sqlite-example.sql
 .idea
+build
