@@ -16,9 +16,6 @@ export class PostPayload {
   @IsNotEmpty()
   provider: string;
 
-  @ApiProperty({
-    required: true,
-  })
-  @IsNotEmpty()
+  @ApiProperty()
   tags: Tag[];
 }

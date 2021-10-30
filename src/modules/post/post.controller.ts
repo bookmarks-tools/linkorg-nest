@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Response } from 'express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -18,8 +30,30 @@ export class PostController {
   @Get('')
   @ApiResponse({ status: 200, description: 'Successful Response' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getLoggedInUser(@CurrentUser() user: User): Promise<PostEntity[]> {
+  async gePosts(@CurrentUser() user: User): Promise<PostEntity[]> {
     return this.postService.getAll(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @Get(':id')
+  @ApiResponse({ status: 200, description: 'Successful Response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getPost(
+    @Param() params,
+    @CurrentUser() user: User,
+  ): Promise<PostEntity> {
+    return this.postService.get(params.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @Delete(':id')
+  @ApiResponse({ status: 200, description: 'Successful Response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async deletePost(@Param() params, @Res() response: Response): Promise<any> {
+    await this.postService.delete(params.id);
+    return response.status(HttpStatus.OK).send('deleted');
   }
 
   @ApiBearerAuth()
@@ -28,10 +62,20 @@ export class PostController {
   @ApiResponse({ status: 201, description: 'Successful Registration' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async register(
+  async add(
     @Body() payload: PostPayload,
     @CurrentUser() user: User,
   ): Promise<any> {
     return await this.postService.create(payload, user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @Put(':id')
+  @ApiResponse({ status: 201, description: 'Successful Registration' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async update(@Param() params, @Body() payload: PostPayload): Promise<any> {
+    return await this.postService.update(params.id, payload);
   }
 }

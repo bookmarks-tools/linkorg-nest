@@ -5,6 +5,7 @@ import {
   ManyToMany,
   JoinTable,
   ManyToOne,
+  DeleteDateColumn,
 } from 'typeorm';
 
 import { User } from '../user';
@@ -29,6 +30,9 @@ export class PostEntity {
   @ManyToMany(() => Tag)
   @JoinTable()
   tags: Tag[];
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }
 
 export class PostFillableFields {
