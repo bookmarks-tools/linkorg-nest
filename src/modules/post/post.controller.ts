@@ -4,22 +4,22 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { User } from '../user';
-import { TagService } from './tag.service';
-import { Tag } from './tag.entity';
-import { TagPayload } from './tag.payload';
+import { PostService } from './post.service';
+import { PostEntity } from './post.entity';
+import { PostPayload } from './post.payload';
 
-@Controller('api/tag')
-@ApiTags('tag')
-export class TagController {
-  constructor(private readonly tagService: TagService) {}
+@Controller('api/post')
+@ApiTags('post')
+export class PostController {
+  constructor(private readonly postService: PostService) {}
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
   @Get('')
   @ApiResponse({ status: 200, description: 'Successful Response' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getLoggedInUser(@CurrentUser() user: User): Promise<Tag[]> {
-    return this.tagService.getAll(user);
+  async getLoggedInUser(@CurrentUser() user: User): Promise<PostEntity[]> {
+    return this.postService.getAll(user);
   }
 
   @ApiBearerAuth()
@@ -29,9 +29,9 @@ export class TagController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async register(
-    @Body() payload: TagPayload,
+    @Body() payload: PostPayload,
     @CurrentUser() user: User,
   ): Promise<any> {
-    return await this.tagService.create(payload, user);
+    return await this.postService.create(payload, user);
   }
 }

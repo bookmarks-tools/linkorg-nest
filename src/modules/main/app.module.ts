@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from './../config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TagModule } from '../tag/tag.module';
+import { PostModule } from '../post/post.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TagModule } from '../tag/tag.module';
     ConfigModule,
     AuthModule,
     TagModule,
+    PostModule,
     CommonModule,
   ],
 
