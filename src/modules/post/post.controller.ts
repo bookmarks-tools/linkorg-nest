@@ -1,14 +1,18 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -18,20 +22,44 @@ import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { User } from '../user';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
-import { PostPayload } from './post.payload';
+import { ChecklistFilter, PostPayload } from './post.payload';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Controller('api/post')
 @ApiTags('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @Get('')
+  // @ApiResponse({ status: 200, description: 'Successful Response' })
+  // @ApiResponse({ status: 401, description: 'Unauthorized' })
+  // async gePosts(@CurrentUser() user: User): Promise<PostEntity[]> {
+  //   return this.postService.getAll(user);
+  // }
+
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
   @Get('')
   @ApiResponse({ status: 200, description: 'Successful Response' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async gePosts(@CurrentUser() user: User): Promise<PostEntity[]> {
-    return this.postService.getAll(user);
+  async index(
+    @CurrentUser() user: User,
+    @Query(new ValidationPipe({ transform: true })) tags: ChecklistFilter,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+  ): Promise<Pagination<PostEntity>> {
+    limit = limit > 100 ? 100 : limit;
+    return this.postService.paginate(
+      tags?.tags || [],
+      {
+        page,
+        limit,
+        route: '/api/post',
+      },
+      user,
+    );
   }
 
   @ApiBearerAuth()

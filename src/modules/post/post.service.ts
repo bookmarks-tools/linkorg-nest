@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 import { User } from '../user';
 import { PostEntity, PostFillableFields } from './post.entity';
@@ -25,9 +30,33 @@ export class PostService {
   }
 
   async getAll(user: User) {
+    // equivalent
+    // const groupIds = [25];
+    // const qb = await this.postRepository
+    //   .createQueryBuilder('post')
+    //   .innerJoin('post.tags', 'postTags', 'postTags.id IN (:...groupIds)', {
+    //     groupIds,
+    //   });
+    // console.log(await qb.getMany());
     return this.postRepository.find({
       where: { user: user },
       relations: ['tags'],
+    });
+  }
+
+  async paginate(
+    tagIds: string[],
+    options: IPaginationOptions,
+    user: User,
+  ): Promise<Pagination<PostEntity>> {
+    return paginate<PostEntity>(this.postRepository, options, {
+      relations: ['tags'],
+      join: { alias: 'post', innerJoin: { postTags: 'post.tags' } },
+      where: (qb) => {
+        if (tagIds.length) {
+          qb.where('postTags.id IN (:...tagIds)', { user: user, tagIds });
+        }
+      },
     });
   }
 

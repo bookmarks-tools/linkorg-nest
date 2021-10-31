@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import { Tag } from '../tag/tag.entity';
+import { Transform, Type } from 'class-transformer';
 
 export class PostPayload {
   @ApiProperty({
@@ -18,4 +19,13 @@ export class PostPayload {
 
   @ApiProperty()
   tags: Tag[];
+}
+
+export class ChecklistFilter {
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @Type(() => String)
+  @Transform(({ value }) => value.split(','))
+  tags?: string[];
 }
