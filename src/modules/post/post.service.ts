@@ -55,6 +55,8 @@ export class PostService {
       where: (qb) => {
         if (tagIds.length) {
           qb.where('postTags.id IN (:...tagIds)', { user: user, tagIds });
+        } else {
+          qb.where({ user: user });
         }
       },
     });

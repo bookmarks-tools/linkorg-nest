@@ -17,18 +17,23 @@ import {
 import { Response } from 'express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 import { CurrentUser } from '../common/decorator/current-user.decorator';
 import { User } from '../user';
 import { PostService } from './post.service';
 import { PostEntity } from './post.entity';
 import { ChecklistFilter, PostPayload } from './post.payload';
-import { Pagination } from 'nestjs-typeorm-paginate';
 
 @Controller('api/post')
 @ApiTags('post')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    @InjectPinoLogger(PostController.name)
+    private readonly logger: PinoLogger,
+    private readonly postService: PostService,
+  ) {}
 
   // @ApiBearerAuth()
   // @UseGuards(AuthGuard())
